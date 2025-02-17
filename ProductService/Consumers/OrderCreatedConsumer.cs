@@ -14,7 +14,7 @@ namespace ProductService.Consumers
         public async Task Consume(ConsumeContext<IOrderCreated> context)
         {
             var order = context.Message;
-            _logger.LogInformation($"Received Order: OrderId={order.OrderId}, ProductId={order.ProductId}, Quantity={order.Quantity}");
+           
 
             await Task.CompletedTask;
         }

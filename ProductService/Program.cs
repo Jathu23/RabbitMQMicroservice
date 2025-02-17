@@ -14,12 +14,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//  Correct MassTransit Configuration (Merged)
+// MassTransit Configuration
 builder.Services.AddMassTransit(x =>
 {
+    // Register Consumers
     x.AddConsumer<OrderCreatedConsumer>();
-    x.AddConsumer<OrderRequestConsumer>(); // Register Consumers
+    x.AddConsumer<OrderRequestConsumer>();
 
+    // RabbitMQ Configuration
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("rabbitmq://localhost");
@@ -36,6 +38,9 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<OrderRequestConsumer>(context);
         });
     });
+
+    // Request Client for Orders
+    x.AddRequestClient<EventContracts.IGetOrdersRequest>();
 });
 
 var app = builder.Build();

@@ -9,7 +9,7 @@ namespace EventContracts
     public interface IOrderResponse
     {
         int OrderId { get; }
-        bool IsAvailable { get; }
+        bool IsSucess { get; }
         string Message { get; }
     }
 }

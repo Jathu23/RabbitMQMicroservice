@@ -3,6 +3,8 @@ using MassTransit;
 using MassTransit.Clients;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OrderService.Data;
+using OrderService.Models;
 
 namespace OrderService.Controllers
 {
@@ -13,11 +15,13 @@ namespace OrderService.Controllers
 
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IRequestClient<IOrderCreated> _requestClient;
+        private readonly OrderDbContext _context;
 
-        public OrderController(IPublishEndpoint publishEndpoint, IRequestClient<IOrderCreated> requestClient)
+        public OrderController(IPublishEndpoint publishEndpoint, IRequestClient<IOrderCreated> requestClient, OrderDbContext orderDbContext)
         {
             _publishEndpoint = publishEndpoint;
             _requestClient = requestClient;
+            _context = orderDbContext;
         }
 
         [HttpPost]
@@ -36,8 +40,8 @@ namespace OrderService.Controllers
             return Ok($"Order {orderId} placed successfully!");
         }
 
-        [HttpPost("PlaceOrder")]
-        public async Task<IActionResult> PlaceOrder(int productId, int quantity)
+        [HttpPost("PlaceOrder2")]
+        public async Task<IActionResult> PlaceOrder2(int productId, int quantity)
         {
             var orderId = new Random().Next(1000, 9999); // Random Order ID
 
@@ -49,7 +53,7 @@ namespace OrderService.Controllers
                 Quantity = quantity
             });
 
-            if (response.Message.IsAvailable)
+            if (response.Message.IsSucess)
             {
                 return Ok($"✅ Order {orderId} Placed Successfully!");
             }
@@ -57,6 +61,38 @@ namespace OrderService.Controllers
             {
                 return BadRequest($"❌ Order Failed: {response.Message.Message}");
             }
+        }
+
+        [HttpPost("placeOrder")]
+        public async Task<IActionResult> PlaceOrder(int productId, int quantity)
+        {
+            var order = new Order
+            {
+                ProductId = productId,
+                Quantity = quantity,
+                IsProcessed = false
+
+            };
+
+            // Send Order Request & Wait for Response
+            var response = await _requestClient.GetResponse<IOrderResponse>(new
+            {
+                ProductId = productId,
+                Quantity = quantity
+            });
+
+            if (response.Message.IsSucess)
+            {
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                return Ok($"✅ Order {order.Id} placed successfully!");
+            }
+
+
+            return BadRequest($"❌ Order Failed: {response.Message.Message}");
+
+
         }
     }
 }

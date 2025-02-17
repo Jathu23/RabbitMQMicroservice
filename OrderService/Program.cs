@@ -1,5 +1,6 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using OrderService.Consumer;
 using OrderService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,20 +8,28 @@ var builder = WebApplication.CreateBuilder(args);
 // Add Database Connection
 builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-// Add services to the container.
 
+// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 // MassTransit Configuration
 builder.Services.AddMassTransit(x =>
 {
+    // Register Consumer
+    x.AddConsumer<GetOrdersConsumer>();
+
+    // RabbitMQ Configuration
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("rabbitmq://localhost"); // RabbitMQ Host
+
+        // Queue for Get Orders Consumer
+        cfg.ReceiveEndpoint("get-orders-queue", e =>
+        {
+            e.ConfigureConsumer<GetOrdersConsumer>(context);
+        });
     });
 });
 
@@ -34,9 +43,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

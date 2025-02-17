@@ -28,8 +28,8 @@ namespace ProductService.Consumers
                 _logger.LogInformation($"✅ Stock Available for ProductId={order.ProductId}");
                 await context.RespondAsync<IOrderResponse>(new
                 {
-                    OrderId = order.OrderId,
-                    IsAvailable = true,
+
+                    IsSucess = true,
                     Message = "Stock Available"
                 });
             }
@@ -38,8 +38,8 @@ namespace ProductService.Consumers
                 _logger.LogInformation($"❌ Out of Stock for ProductId={order.ProductId}");
                 await context.RespondAsync<IOrderResponse>(new
                 {
-                    OrderId = order.OrderId,
-                    IsAvailable = false,
+
+                    IsSucess = false,
                     Message = "Product Out of Stock"
                 });
             }

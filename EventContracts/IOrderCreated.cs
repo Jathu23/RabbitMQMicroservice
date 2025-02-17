@@ -8,7 +8,7 @@ namespace EventContracts
 {
     public interface IOrderCreated
     {
-        int OrderId { get; }
+      
         int ProductId { get; }
         int Quantity { get; }
     }
