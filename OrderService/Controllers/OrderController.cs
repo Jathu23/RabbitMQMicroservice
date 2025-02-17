@@ -40,28 +40,6 @@ namespace OrderService.Controllers
             return Ok($"Order {orderId} placed successfully!");
         }
 
-        [HttpPost("PlaceOrder2")]
-        public async Task<IActionResult> PlaceOrder2(int productId, int quantity)
-        {
-            var orderId = new Random().Next(1000, 9999); // Random Order ID
-
-            // Send Order Request & Wait for Response
-            var response = await _requestClient.GetResponse<IOrderResponse>(new
-            {
-                OrderId = orderId,
-                ProductId = productId,
-                Quantity = quantity
-            });
-
-            if (response.Message.IsSucess)
-            {
-                return Ok($"✅ Order {orderId} Placed Successfully!");
-            }
-            else
-            {
-                return BadRequest($"❌ Order Failed: {response.Message.Message}");
-            }
-        }
 
         [HttpPost("placeOrder")]
         public async Task<IActionResult> PlaceOrder(int productId, int quantity)

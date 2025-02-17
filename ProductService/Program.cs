@@ -27,10 +27,10 @@ builder.Services.AddMassTransit(x =>
         cfg.Host("rabbitmq://localhost");
 
         // Order Created Queue
-        cfg.ReceiveEndpoint("order-created-queue", e =>
-        {
-            e.ConfigureConsumer<OrderCreatedConsumer>(context);
-        });
+        //cfg.ReceiveEndpoint("order-created-queue", e =>
+        //{
+        //    e.ConfigureConsumer<OrderCreatedConsumer>(context);
+        //});
 
         // Order Request Queue
         cfg.ReceiveEndpoint("order-request-queue", e =>

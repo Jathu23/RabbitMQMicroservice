@@ -3,16 +3,19 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using EventContracts;
+using OrderService.Data;
 
 namespace ProductService.Consumers
 {
     public class OrderRequestConsumer : IConsumer<IOrderCreated>
     {
         private readonly ILogger<OrderRequestConsumer> _logger;
+        private readonly ProductDbContext _dbContext;
 
-        public OrderRequestConsumer(ILogger<OrderRequestConsumer> logger)
+        public OrderRequestConsumer(ILogger<OrderRequestConsumer> logger, ProductDbContext dbContext)
         {
             _logger = logger;
+            _dbContext = dbContext;
         }
 
         public async Task Consume(ConsumeContext<IOrderCreated> context)
@@ -20,12 +23,12 @@ namespace ProductService.Consumers
             var order = context.Message;
             _logger.LogInformation($"📦 Checking Stock for ProductId={order.ProductId}");
 
-            // Simulating Product Availability Check
-            bool isAvailable = order.ProductId % 2 == 0; // Even IDs available, Odd IDs out of stock
+            //Thread.Sleep(2000); 
+             
+            var product = await _dbContext.Products.FindAsync(order.ProductId);
 
-            if (isAvailable)
+            if (product!= null)
             {
-                _logger.LogInformation($"✅ Stock Available for ProductId={order.ProductId}");
                 await context.RespondAsync<IOrderResponse>(new
                 {
 
